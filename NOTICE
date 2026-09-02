@@ -1,0 +1,12 @@
+trading-agents-sop
+Copyright 2026 Ray Yao (姚壬亮) (https://github.com/yaorenliang)
+
+This product is inspired by, and adapts the multi-agent decision methodology of,
+TradingAgents by Tauric Research (https://github.com/TauricResearch/TradingAgents),
+licensed under the Apache License 2.0. This repository is an independent
+skill-form implementation of that methodology (prompt / orchestration layer);
+it does not redistribute TradingAgents source code.
+Paper: https://arxiv.org/abs/2412.20138
+
+This product is for research and education only and does not constitute
+investment advice.
