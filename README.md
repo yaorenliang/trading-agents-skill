@@ -1,6 +1,6 @@
 # trading-agents-sop
 
-**The TradingAgents methodology as a portable agent skill** — multi-agent bull/bear debate, risk debate, centralized 5-tier rating gates, and T+5 deferred reflection, in pure Markdown that any Agent-Skills-compatible harness (Claude Code, Codex, Gemini CLI, Cursor, DSH, ...) can execute directly. Zero Python framework required. Ships with an A-share data-source playbook.
+**A股特化的股票分析与交易决策 agent skill（A-share-first stock analysis & trading-decision skill）** — the TradingAgents methodology as a portable skill: multi-agent bull/bear debate, risk debate, centralized 5-tier rating gates, T+5 deferred reflection, and an A-share data-source playbook (akshare / 雪球 / 东财股吧 / 集思录). Pure Markdown, zero Python framework; any Agent-Skills-compatible harness (Claude Code, opencode, Codex, Gemini CLI, Cursor, DSH, ...) can execute it directly.
 
 中文速览见文末。
 
@@ -72,4 +72,4 @@ Educational / research tooling. Outputs are analytical demonstrations and **do n
 
 ## 中文速览
 
-把 TradingAgents 的多 Agent 决策方法论（五大分析师 → 多空辩论 → 研究裁决 → 交易提案 → 风控三方辩论 → 组合终裁 → T+5 延迟反思）做成装上就能用的 agent skill：零 Python 依赖、分级执行（快速通道 / 完整流程 / 仓位评估 / 纯反思）、集中化 5 档评级门禁、决策记忆跨 harness 可移植，并附 A股数据源手册（akshare 免费行情、雪球 / 东财股吧 / 集思录情绪源、涨跌停 / T+1 / 量纲 / 复权提醒）。安装 = 复制目录。仅供研究学习，不构成投资建议。
+把 TradingAgents 的多 Agent 决策方法论（五大分析师 → 多空辩论 → 研究裁决 → 交易提案 → 风控三方辩论 → 组合终裁 → T+5 延迟反思）做成装上就能用的 agent skill：零 Python 依赖、分级执行（快速通道 / 完整流程 / 仓位评估 / 纯反思）、集中化 5 档评级门禁、决策记忆跨 harness 可移植，并附 A股数据源手册（akshare 免费行情、雪球 / 东财股吧 / 集思录情绪源、涨跌停 / T+1 / 量纲 / 复权提醒）。适用 A股 / 港股（0700.HK）/ 美股（NVDA）；触发词覆盖：股票分析、能不能买、交易计划、仓位评估、选股、复盘反思。安装 = 复制目录。仅供研究学习，不构成投资建议。
