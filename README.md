@@ -37,7 +37,7 @@ Talk to your agent:
 - 「评估我的 300750 仓位」 → position-review path
 - 「反思一下上次茅台的决策」 → reflection only
 
-Outputs follow the fixed report formats in `references/workflow.md`; a complete fictional worked example is in `examples/example-full-analysis.md`.
+Outputs follow the fixed report formats in `references/workflow.md`; a fictional format demo is in `examples/example-full-analysis.md`, and a real end-to-end run (600519, 2026-09-02, with sourced citations) in `examples/real-example-600519.md`.
 
 ## Structure
 
@@ -54,7 +54,8 @@ trading-agents-sop/
 ├── scripts/
 │   └── fetch_quotes.py             # optional tokenless quote accelerator (akshare/yfinance)
 ├── examples/
-│   └── example-full-analysis.md    # fictional end-to-end worked example
+│   ├── example-full-analysis.md    # fictional format demo
+│   └── real-example-600519.md      # real agent run (2026-09-02, 23 sourced citations)
 ├── NOTICE                          # attribution to TradingAgents (Apache-2.0)
 └── LICENSE                         # Apache-2.0
 ```

@@ -44,4 +44,5 @@ description: Multi-agent stock analysis and trading-decision SOP - the TradingAg
 | references/data-sources.md | Phase 1 取数前 |
 | references/methodology.md | 需要理解设计理由时 |
 | scripts/fetch_quotes.py | 有 Python 环境时的行情加速器（可选） |
-| examples/example-full-analysis.md | 需要输出格式样例时 |
+| examples/example-full-analysis.md | 虚构格式演示（需要输出样例时） |
+| examples/real-example-600519.md | 真实运行样例（含 23 条来源与决策记忆落盘） |
