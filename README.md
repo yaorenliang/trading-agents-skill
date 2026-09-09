@@ -1,75 +1,71 @@
 # trading-agents-sop
 
-**A股特化的股票分析与交易决策 agent skill（A-share-first stock analysis & trading-decision skill）** — the TradingAgents methodology as a portable skill: multi-agent bull/bear debate, risk debate, centralized 5-tier rating gates, T+5 deferred reflection, and an A-share data-source playbook (akshare / 雪球 / 东财股吧 / 集思录). Pure Markdown, zero Python framework; any Agent-Skills-compatible harness (Claude Code, opencode, Codex, Gemini CLI, Cursor, DSH, ...) can execute it directly.
+**A股特化的股票分析与交易决策 agent skill** —— 把 TradingAgents 方法论做成便携 skill：多 Agent 多空辩论、风控辩论、集中式 5 档评级门禁、T+5 延迟反思，附 A股数据源手册（akshare / 雪球 / 东财股吧 / 集思录）。纯 Markdown、零 Python 框架；任何兼容 Agent Skills 的 harness（Claude Code、opencode、Codex、Gemini CLI、Cursor、DSH 等）都能直接执行。
 
-中文速览见文末。
+适用 **A股 / 港股（0700.HK）/ 美股（NVDA）**。English documentation: [README.en.md](README.en.md)
 
-## Why this exists
+## 为什么做这个
 
-[TradingAgents](https://github.com/TauricResearch/TradingAgents) (Tauric Research, Apache-2.0) is an excellent multi-agent LLM trading framework — but it is a Python/LangGraph pipeline: clone, install dependencies, configure API keys, run. If your daily driver is an AI coding agent, you do not want another environment to maintain.
+[TradingAgents](https://github.com/TauricResearch/TradingAgents)（Tauric Research，Apache-2.0）是一个优秀的多 Agent LLM 交易框架——但它是 Python/LangGraph 流水线：clone、装依赖、配 API key、才能跑。如果你的主力工具是 AI 编码 Agent，你不会想再维护一套环境。
 
-This repo re-implements the **methodology** (not the code) as a skill, and adds a **discipline layer** the original does not expose in skill form:
+本仓库把它的**方法论**（而非代码）重实现为 skill，并补上了原版没有以 skill 形式暴露的纪律层：
 
-| | TradingAgents (framework) | trading-agents-sop (this skill) |
+| | TradingAgents（框架） | trading-agents-sop（本 skill） |
 |---|---|---|
-| Form | Python + LangGraph pipeline | Pure Markdown skill (Agent Skills format) |
-| Install | clone + deps + API keys | copy one folder |
-| Execution | full pipeline every run | tiered: quick path / full SOP / position review / reflection-only |
-| Data | built-in US-centric connectors | data-source playbook: akshare / yfinance (free, tokenless), A-share sentiment sources (Xueqiu, Eastmoney guba, Jisilu) |
-| Rating | 5-tier via rating.py | centralized 5-tier gate + forced-decisiveness rule (references/rating.md) |
-| Reflection | in-process memory log | T+5 deferred reflection with portable Markdown decision memory (readable across harnesses) |
-| A-share specifics | limited | price-limit / T+1 / ST / unit / adjustment reminders |
+| 形态 | Python + LangGraph 流水线 | 纯 Markdown skill（Agent Skills 格式） |
+| 安装 | clone + 依赖 + API key | 复制一个目录 |
+| 执行 | 每次跑完整流水线 | 分级：快速通道 / 完整 SOP / 仓位评估 / 纯反思 |
+| 数据 | 内置以美股为中心的连接器 | 数据源手册：akshare / yfinance（免费、免 token）+ A股情绪源（雪球、东财股吧、集思录） |
+| 评级 | 5 档（rating.py） | 集中式 5 档门禁 + 强制表态规则（references/rating.md） |
+| 反思 | 进程内记忆日志 | T+5 延迟反思 + 跨 harness 可移植的 Markdown 决策记忆 |
+| A股特化 | 有限 | 涨跌停 / T+1 / ST / 量纲 / 复权提醒 |
 
-## Install
+## 安装
 
-- **OpenCode**: copy to `~/.config/opencode/skills/trading-agents-sop/` (global) or `.opencode/skills/` (per project).
-- **Claude Code**: copy this folder to `~/.claude/skills/trading-agents-sop/` (or `<project>/.claude/skills/`).
-- **Other Agent-Skills-compatible harnesses**: same convention — any harness that reads `SKILL.md`.
-- No build step. `scripts/fetch_quotes.py` is an optional accelerator (`pip install akshare yfinance`); without it the skill degrades gracefully to web retrieval and marks such numbers as unverified.
+- **OpenCode**：复制到 `~/.config/opencode/skills/trading-agents-sop/`（全局）或 `.opencode/skills/`（项目级）。
+- **Claude Code**：把本目录复制到 `~/.claude/skills/trading-agents-sop/`（或 `<project>/.claude/skills/`）。
+- **其他兼容 Agent Skills 的 harness**：同样约定——任何能读 `SKILL.md` 的 harness 都可以。
+- 无需构建。`scripts/fetch_quotes.py` 是可选加速器（`pip install akshare yfinance`）；没有它 skill 会优雅降级为 web 检索，并把相应数字标注为未核实。
 
-## Usage
+## 用法
 
-Talk to your agent:
+直接对 Agent 说：
 
-- 「帮我分析一下 600519」 → full SOP
-- "full analysis on NVDA" → full SOP
-- 「做个 0700.HK 的交易计划」 → full SOP + risk debate
-- 「评估我的 300750 仓位」 → position-review path
-- 「反思一下上次茅台的决策」 → reflection only
+- 「帮我分析一下 600519」 → 完整 SOP
+- "full analysis on NVDA" → 完整 SOP
+- 「做个 0700.HK 的交易计划」 → 完整 SOP + 风控辩论
+- 「评估我的 300750 仓位」 → 仓位评估路径
+- 「反思一下上次茅台的决策」 → 仅反思
 
-Outputs follow the fixed report formats in `references/workflow.md`; a fictional format demo is in `examples/example-full-analysis.md`, and a real end-to-end run (600519, 2026-09-02, with sourced citations) in `examples/real-example-600519.md`.
+输出遵循 `references/workflow.md` 中的固定报告格式；虚构格式演示见 `examples/example-full-analysis.md`，真实端到端运行（600519，2026-09-02，带来源引用）见 `examples/real-example-600519.md`。
 
-## Structure
+## 目录结构
 
 ```text
 trading-agents-sop/
-├── SKILL.md                        # entry: trigger, flow map, hard rules
+├── SKILL.md                        # 入口：触发条件、流程图、硬性规则
 ├── references/
-│   ├── workflow.md                 # Phase 0-7, input/output formats, acceptance gates
-│   ├── roles.md                    # 14 role cards (analysts / debaters / trader / PM / reflector)
-│   ├── rating.md                   # centralized 5-tier rating (single source of truth)
-│   ├── reflection.md               # T+5 deferred reflection + decision memory format
-│   ├── data-sources.md             # free data playbook (A-share / US / HK) + pitfalls
-│   └── methodology.md              # design rationale
+│   ├── workflow.md                 # Phase 0-7、输入输出格式、验收门禁
+│   ├── roles.md                    # 14 张角色卡（分析师 / 辩论员 / 交易员 / PM / 反思员）
+│   ├── rating.md                   # 集中式 5 档评级（唯一权威）
+│   ├── reflection.md               # T+5 延迟反思 + 决策记忆格式
+│   ├── data-sources.md             # 免费数据源手册（A股 / 美股 / 港股）+ 坑位
+│   └── methodology.md              # 设计理由
 ├── scripts/
-│   └── fetch_quotes.py             # optional tokenless quote accelerator (akshare/yfinance)
+│   └── fetch_quotes.py             # 可选的免 token 行情加速器（akshare/yfinance）
 ├── examples/
-│   ├── example-full-analysis.md    # fictional format demo
-│   └── real-example-600519.md      # real agent run (2026-09-02, 23 sourced citations)
-├── NOTICE                          # attribution to TradingAgents (Apache-2.0)
+│   ├── example-full-analysis.md    # 虚构格式演示
+│   └── real-example-600519.md      # 真实 Agent 运行（2026-09-02，23 处来源引用）
+├── NOTICE                          # TradingAgents（Apache-2.0）署名
 └── LICENSE                         # Apache-2.0
 ```
 
-## Attribution and License
+## 致谢与许可
 
-- Methodology inspired by and adapted from **TradingAgents** by Tauric Research (Apache-2.0): repository and paper (arXiv:2412.20138). See `NOTICE`.
-- This repo is an independent prompt/orchestration implementation; no TradingAgents source code is redistributed. Not affiliated with Tauric Research.
-- Licensed under Apache-2.0.
+- 方法论启发并改编自 Tauric Research 的 **TradingAgents**（Apache-2.0）：仓库与论文（arXiv:2412.20138）。见 `NOTICE`。
+- 本仓库是独立的 prompt/编排实现；未再分发 TradingAgents 源码。与 Tauric Research 无关联。
+- 基于 Apache-2.0 许可开源。
 
-## Disclaimer
+## 免责声明
 
-Educational / research tooling. Outputs are analytical demonstrations and **do not constitute investment advice**. Markets involve risk; you are responsible for your own decisions.
-
-## 中文速览
-
-把 TradingAgents 的多 Agent 决策方法论（五大分析师 → 多空辩论 → 研究裁决 → 交易提案 → 风控三方辩论 → 组合终裁 → T+5 延迟反思）做成装上就能用的 agent skill：零 Python 依赖、分级执行（快速通道 / 完整流程 / 仓位评估 / 纯反思）、集中化 5 档评级门禁、决策记忆跨 harness 可移植，并附 A股数据源手册（akshare 免费行情、雪球 / 东财股吧 / 集思录情绪源、涨跌停 / T+1 / 量纲 / 复权提醒）。适用 A股 / 港股（0700.HK）/ 美股（NVDA）；触发词覆盖：股票分析、能不能买、交易计划、仓位评估、选股、复盘反思。安装 = 复制目录。仅供研究学习，不构成投资建议。
+仅供教育/研究用途。输出为分析演示，**不构成投资建议**。市场有风险，决策请自担。
