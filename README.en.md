@@ -1,71 +1,87 @@
 # trading-agents-sop
 
-**A-share-first stock analysis & trading-decision agent skill** — the TradingAgents methodology as a portable skill: multi-agent bull/bear debate, risk debate, centralized 5-tier rating gates, T+5 deferred reflection, and an A-share data-source playbook (akshare / Xueqiu / Eastmoney guba / Jisilu). Pure Markdown, zero Python framework; any Agent-Skills-compatible harness (Claude Code, opencode, Codex, Gemini CLI, Cursor, DSH, ...) can execute it directly.
+Give it a ticker, get a decision card: rating, entry, stop, the reason it says no, and a hook that makes it face the outcome later.
 
-Covers **A-share / HK (0700.HK) / US (NVDA)** markets. 中文文档：[README.md](README.md)
+Below is the final output of one real run on 600519.SH (Kweichow Moutai), quoted as produced on 2026-09-02 with 23 cited sources. Full transcript: [examples/real-example-600519.md](examples/real-example-600519.md).
 
-## Why this exists
+```text
+Rating      Overweight (tier 2 of 5)
+Entry       1285-1305, staged, 2% position (up to 4% on a balanced book)
+Stop        1116 CNY (about 3% below the 52-week low of 1151.01)
+Target      1689.48 CNY (consensus mean, not set by this analysis)
+Horizon     3-6 months, decided by the Q3 report and wholesale price
+Why not Buy earnings inflection unconfirmed. Why not Hold downside case was weaker than the bottoming case.
+Confidence  medium
+Reflection  due 5 trading days later; the verdict is written back into the next analysis of the same ticker
+```
 
-[TradingAgents](https://github.com/TauricResearch/TradingAgents) (Tauric Research, Apache-2.0) is an excellent multi-agent LLM trading framework — but it is a Python/LangGraph pipeline: clone, install dependencies, configure API keys, run. If your daily driver is an AI coding agent, you do not want another environment to maintain.
+Data as of 2026-09-02. It shows the output shape, not today's market; ask the agent to fetch fresh numbers. Works for A-share, HK (0700.HK) and US (NVDA). Chinese: [README.md](README.md)
 
-This repo re-implements the **methodology** (not the code) as a skill, and adds a **discipline layer** the original does not expose in skill form:
+## What differs from upstream TradingAgents
 
-| | TradingAgents (framework) | trading-agents-sop (this skill) |
-|---|---|---|
-| Form | Python + LangGraph pipeline | Pure Markdown skill (Agent Skills format) |
-| Install | clone + deps + API keys | copy one folder |
-| Execution | full pipeline every run | tiered: quick path / full SOP / position review / reflection-only |
-| Data | built-in US-centric connectors | data-source playbook: akshare / yfinance (free, tokenless), A-share sentiment sources (Xueqiu, Eastmoney guba, Jisilu) |
-| Rating | 5-tier via rating.py | centralized 5-tier gate + forced-decisiveness rule (references/rating.md) |
-| Reflection | in-process memory log | T+5 deferred reflection with portable Markdown decision memory (readable across harnesses) |
-| A-share specifics | limited | price-limit / T+1 / ST / unit / adjustment reminders |
+Upstream ([TauricResearch/TradingAgents](https://github.com/TauricResearch/TradingAgents), Apache-2.0) is a Python + LangGraph pipeline: clone it, install dependencies, wire API keys. This repo has no framework at all, just Markdown, so an agent can execute it as installed. Two disciplines upstream does not expose as a skill:
+
+- **A five-tier forced verdict**: the rating has to land in one of five tiers. "Depends" and "needs more observation" are not accepted ([references/rating.md](references/rating.md)).
+- **Delayed reflection at T+5**: the decision is persisted to a Markdown memory file, revisited five trading days later against a benchmark, and injected into the next analysis of the same ticker ([references/reflection.md](references/reflection.md)).
+
+Bull/bear debate, the three-way risk debate and fourteen role cards live in references/ and are loaded on demand.
 
 ## Install
 
-- **OpenCode**: copy to `~/.config/opencode/skills/trading-agents-sop/` (global) or `.opencode/skills/` (per project).
-- **Claude Code**: copy this folder to `~/.claude/skills/trading-agents-sop/` (or `<project>/.claude/skills/`).
-- **Other Agent-Skills-compatible harnesses**: same convention — any harness that reads `SKILL.md`.
-- No build step. `scripts/fetch_quotes.py` is an optional accelerator (`pip install akshare yfinance`); without it the skill degrades gracefully to web retrieval and marks such numbers as unverified.
+skills.sh installer, one command for several harnesses (Claude Code, Codex, Cursor, opencode, ...):
 
-## Usage
+```bash
+npx skills@latest add yaorenliang/trading-agents-skill
+```
 
-Talk to your agent:
+Claude Code native marketplace:
 
-- 「帮我分析一下 600519」 → full SOP
-- "full analysis on NVDA" → full SOP
-- 「做个 0700.HK 的交易计划」 → full SOP + risk debate
-- 「评估我的 300750 仓位」 → position-review path
-- 「反思一下上次茅台的决策」 → reflection only
+```text
+/plugin marketplace add yaorenliang/trading-agents-skill
+/plugin install trading-agents-sop@trading-agents-skill
+```
 
-Outputs follow the fixed report formats in `references/workflow.md`; a fictional format demo is in `examples/example-full-analysis.md`, and a real end-to-end run (600519, 2026-09-02, with sourced citations) in `examples/real-example-600519.md`.
+Manual install for any harness that reads `SKILL.md`: drop this directory into that harness's skills directory under the name `trading-agents-sop`. For opencode that is `~/.config/opencode/skills/trading-agents-sop/`, for Claude Code `~/.claude/skills/trading-agents-sop/`.
 
-## Structure
+Nothing to build. `scripts/fetch_quotes.py` is an optional quote accelerator (`pip install akshare yfinance`). Without it the skill degrades to web retrieval and marks every number it could not verify.
+
+## Prompts that work
+
+- "analyze 600519" full SOP
+- "full analysis on NVDA" full SOP
+- "make a trade plan for 0700.HK" full SOP plus the risk debate
+- "size my 300750 position" position path
+- "reflect on my last Moutai call" reflection only
+
+Output follows the fixed report format in [references/workflow.md](references/workflow.md). A fabricated format demo lives in [examples/example-full-analysis.md](examples/example-full-analysis.md).
+
+## Layout
 
 ```text
 trading-agents-sop/
-├── SKILL.md                        # entry: trigger, flow map, hard rules
+├── SKILL.md                        # entry point: triggers, flow, hard rules
 ├── references/
-│   ├── workflow.md                 # Phase 0-7, input/output formats, acceptance gates
-│   ├── roles.md                    # 14 role cards (analysts / debaters / trader / PM / reflector)
-│   ├── rating.md                   # centralized 5-tier rating (single source of truth)
-│   ├── reflection.md               # T+5 deferred reflection + decision memory format
-│   ├── data-sources.md             # free data playbook (A-share / US / HK) + pitfalls
-│   └── methodology.md              # design rationale
+│   ├── workflow.md                 # Phase 0-7, I/O formats, acceptance gates
+│   ├── roles.md                    # fourteen role cards
+│   ├── rating.md                   # the single source of truth for ratings
+│   ├── reflection.md               # T+5 reflection and the memory format
+│   ├── data-sources.md             # free data sources and their traps
+│   └── methodology.md              # why it is built this way
 ├── scripts/
-│   └── fetch_quotes.py             # optional tokenless quote accelerator (akshare/yfinance)
+│   └── fetch_quotes.py             # optional, token-free quote fetcher
 ├── examples/
-│   ├── example-full-analysis.md    # fictional format demo
-│   └── real-example-600519.md      # real agent run (2026-09-02, 23 sourced citations)
-├── NOTICE                          # attribution to TradingAgents (Apache-2.0)
+│   ├── example-full-analysis.md    # fabricated format demo
+│   └── real-example-600519.md      # real run, 2026-09-02, 23 citations
+├── NOTICE                          # TradingAgents (Apache-2.0) attribution
 └── LICENSE                         # Apache-2.0
 ```
 
-## Attribution and License
+## Credits and license
 
-- Methodology inspired by and adapted from **TradingAgents** by Tauric Research (Apache-2.0): repository and paper (arXiv:2412.20138). See `NOTICE`.
-- This repo is an independent prompt/orchestration implementation; no TradingAgents source code is redistributed. Not affiliated with Tauric Research.
-- Licensed under Apache-2.0.
+- Method inspired by and adapted from **TradingAgents** by Tauric Research (Apache-2.0), repository plus paper (arXiv:2412.20138). See [NOTICE](NOTICE).
+- This repository is an independent prompt/orchestration implementation. It does not redistribute TradingAgents source and is not affiliated with Tauric Research.
+- Released under Apache-2.0.
 
 ## Disclaimer
 
-Educational / research tooling. Outputs are analytical demonstrations and **do not constitute investment advice**. Markets involve risk; you are responsible for your own decisions.
+Educational use only. The output is a demonstration of an analysis process, not investment advice.

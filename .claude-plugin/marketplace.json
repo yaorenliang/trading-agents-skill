@@ -1,0 +1,22 @@
+{
+  "name": "trading-agents-skill",
+  "owner": {
+    "name": "yaorenliang",
+    "url": "https://github.com/yaorenliang"
+  },
+  "metadata": {
+    "description": "Agent skills by yaorenliang",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "trading-agents-sop",
+      "source": "./",
+      "description": "Give it a ticker, get a decision card: five-tier forced rating, entry, stop, a T+5 reflection hook. Zero-dependency agent skill for A-share, HK and US equities.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Ray Yao"
+      }
+    }
+  ]
+}
